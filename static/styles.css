@@ -32,3 +32,19 @@ div.lado-direito a {
     text-align: center; /*Centraliza o texto no centro*/
     
 }
+div.formulario{
+    border-radius: 10px;
+    border: solid edbfb7;
+    color: #260f26;
+    font-size: 25px;
+    padding:2px;
+    margin: 2%;
+    
+}
+button{
+    background-color: #eac8ca;
+    padding: 10px;
+    color:#ffffff;
+
+}
+
