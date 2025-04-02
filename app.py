@@ -1,7 +1,5 @@
 # Importando a biblioteca flask
 from flask import Flask, render_template, request
-# Biblioteca para segurança no login
-from werkzeug.security import generate_password_hash, check_password_hash
 
 import database
 
@@ -11,9 +9,18 @@ app = Flask(__name__) # Criando um objeto do Flask chamado app
 def hello():
     return render_template('index.html')
 
-@app.route('/login')
+@app.route('/login', methods=["GET", "POST"])
 def login():
-    return render_template('login.html')
+    render_template('login.html')
+    if request.method == "POST":
+        form = request.form
+        if database.verificar_usuario(form) == True:
+            return "Qualquer coisa"
+        else:
+            return "Qualquer coisa 2"
+    else:    
+        return render_template('login.html')
+
 
 #GET serve para "pegar" as informações de uma página
 #POST serve para enviar informações

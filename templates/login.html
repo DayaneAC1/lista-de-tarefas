@@ -4,9 +4,25 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login</title>
+    <link rel="stylesheet" href="/static/styles.css">
 </head>
 <body>
     <h1>Login</h1>
+    <div class="formulario">
+        <form action="/login" method="POST">
+            
+            <label for="email">E-mail</label>
+            <input type="text" id="email" name="email" required>
+            <br>
+    
+            <label for="senha">Senha</label>
+            <input type="password" id="senha" name="senha" required>
+            <br>
+
+    
+            <button button type="submit" class="btn">Entrar</button>
+        </form>
+    </div>
     
 </body>
 </html>
