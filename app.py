@@ -1,5 +1,5 @@
 # Importando a biblioteca flask
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, redirect, session
 
 import database
 
@@ -15,9 +15,10 @@ def login():
     if request.method == "POST":
         form = request.form
         if database.verificar_usuario(form) == True:
-            return "Qualquer coisa"
+            session['email'] = form['email']
+            return redirect("/lista")
         else:
-            return "Qualquer coisa 2"
+            return redirect("/login")
     else:    
         return render_template('login.html')
 
@@ -35,6 +36,23 @@ def cadastro():
             return "Ocorreu um erro ao cadastrar usuário"
     else:    
         return render_template('cadastro.html')
+    
+@app.route('/lista', methods=["GET"])
+def lista():
+    lista_tarefas = database.selecionar_tarefas()
+    print(lista_tarefas)
+    return render_template('lista.html', tarefas=lista_tarefas)
+    
+@app.route('/criar_tarefa', methods=["POST"])
+def criar_tarefa():
+    form = request.form
+    if database.criar_tarefa(form['conteudo']) == True:
+        return redirect ('/lista')
+    else:
+        return "Ocorreu um erro ao cadastrar a tarefa"
+    
+    
+    
 
 if __name__ == '__main__':
     app.run(debug=True)

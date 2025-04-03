@@ -43,12 +43,33 @@ def verificar_usuario (formulario):
     usuario = cursor.fetchone()
     
     if usuario is None:
-        print("Esse usuario não existe")
+        return False
+        
     else:
         if check_password_hash(usuario[0], (formulario ["senha"])):
-            print("Senha correta.")
+            return True
         else:
-            print("Senha incorreta.")
+            return False
+        
+def criar_tarefa (conteudo):
+    conexao = conectar_banco()
+    cursor = conexao.cursor()
+    cursor.execute('''INSERT INTO tarefas (conteudo, esta_concluida, email_usuario)
+                   VALUES (?,?,?)''',(conteudo, False, "dayane@email.com"))
+    conexao.commit()
+    return True
+
+def selecionar_tarefas ():
+    conexao = conectar_banco()
+    cursor = conexao.cursor()
+    cursor.execute('''SELECT id, conteudo, esta_concluida 
+                   FROM tarefas WHERE email_usuario= ?''',('dayane@email.com',))
+    
+    tarefas = cursor.fetchall() # Busca todos os resultados do select e guarda em "tarefas"
+    return tarefas
+
+
+    
             
         
         
