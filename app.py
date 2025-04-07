@@ -1,9 +1,10 @@
 # Importando a biblioteca flask
-from flask import Flask, render_template, request, redirect, session
+from flask import Flask, render_template, request, redirect, session, url_for
 
 import database
 
 app = Flask(__name__) # Criando um objeto do Flask chamado app
+app.secret_key = "SENHA SECRETA" #Senha secreta que geralmente estaria em um arquivo a parte
 
 @app.route('/')
 def hello():
@@ -51,7 +52,32 @@ def criar_tarefa():
     else:
         return "Ocorreu um erro ao cadastrar a tarefa"
     
+@app.route('/tarefas/atualizar/<int:id>', methods=["GET"])
+def marcar_tarefa_como_feita(id):
+    if database.marcar_tarefa_como_feita(id):
+        return redirect(url_for('lista'))
+    else:
+        return "Ocorreu um erro ao marcar a tarefa como feita"
     
+@app.route('/tarefas/excluir/<int:id>', methods=["GET"])
+def excluir_tarefa(id):
+    
+    email = session['usuario'] #pega o e-mail da sessão para verificar se é o dono da tarefa
+    
+    if database.excluir_tarefa(id, email):
+        return redirect(url_for('lista'))
+    else:
+        return "Ocorreu um erro ao excluir tarefa"
+    
+@app.route('/tarefas/excluir_usuario')
+def excluir_usuario():
+    email = session['usuario']
+    
+    if database.excluir_usuario(email):
+        return redirect(url_for(hello))
+    else:
+        return "Ocorreu um erro ao excluir usuário"
+
     
 
 if __name__ == '__main__':
