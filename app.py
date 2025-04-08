@@ -62,7 +62,7 @@ def marcar_tarefa_como_feita(id):
 @app.route('/tarefas/excluir/<int:id>', methods=["GET"])
 def excluir_tarefa(id):
     
-    email = session['usuario'] #pega o e-mail da sessão para verificar se é o dono da tarefa
+    email = session['email'] #pega o e-mail da sessão para verificar se é o dono da tarefa
     
     if database.excluir_tarefa(id, email):
         return redirect(url_for('lista'))
@@ -71,7 +71,7 @@ def excluir_tarefa(id):
     
 @app.route('/tarefas/excluir_usuario')
 def excluir_usuario():
-    email = session['usuario']
+    email = session['email']
     
     if database.excluir_usuario(email):
         return redirect(url_for(hello))
