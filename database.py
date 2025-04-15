@@ -1,6 +1,6 @@
+# Biblioteca para segurança no login
 from werkzeug.security import generate_password_hash, check_password_hash
 import sqlite3
-from flask import Flask, session
 
 def conectar_banco():
     conexao = sqlite3.connect("tarefa.db")
@@ -12,10 +12,11 @@ def criar_tabelas():
     cursor.execute('''create table if not exists usuarios
                    (email text primary key,nome text,senha text)''')
     
-    cursor.execute('''create table if not exists projetos_musicais 
-                   (id integer primary key, nome_musica text, artista text, 
-                   status text, letra text, caminho_capa text, email_usuario text,
-                   foreign key (email_usuario) references usuarios(email))''')
+    cursor.execute('''create table if not exists tarefas 
+                   (id integer primary key, conteudo text, esta_concluida integer, 
+                   email_usuario text, foreign key (email_usuario) references usuarios(email))''')
+    
+    conexao.commit()
     
 def criar_usuario (formulario):
     # Verificar se o email já existe no Banco de Dados
@@ -77,29 +78,74 @@ def verificar_usuario (formulario):
         else:
             return False
         
-def criar_musica (formulario, email):
+def criar_tarefa (conteudo):
     conexao = conectar_banco()
     cursor = conexao.cursor()
-    cursor.execute('''INSERT INTO projetos_musicais (nome_musica, artista, status, letra, email_usuario) 
-                   VALUES (?, ?, ?, ?,?)''', (formulario ['nome_musica'],
-                    formulario['artista'], formulario['status'], formulario['letra'], email))
+    cursor.execute('''INSERT INTO tarefas (conteudo, esta_concluida, email_usuario)
+                   VALUES (?,?,?)''',(conteudo, False, "dayane@email.com"))
     conexao.commit()
-    
-def pegar_musicas (email):
+    return True
+
+def selecionar_tarefas ():
     conexao = conectar_banco()
     cursor = conexao.cursor()
-    cursor.execute('''SELECT * FROM projetos_musicais WHERE email_usuario=?''', (email,))
-    return cursor.fetchall()
+    cursor.execute('''SELECT id, conteudo, esta_concluida 
+                   FROM tarefas WHERE email_usuario= ?''',('dayane@email.com',))
+    
+    tarefas = cursor.fetchall() # Busca todos os resultados do select e guarda em "tarefas"
+    return tarefas
 
-def editar_musica(formulario, email):
+
+def marcar_tarefa_como_feita(id):
     conexao = conectar_banco()
     cursor = conexao.cursor()
-    cursor.execute('''UPDATE projetos_musicais SET nome_musica=?, artista=?, status=?, letra=? WHERE email_usuario''',
-                   (formulario['nome_musica'], formulario['artista'], formulario['status'], formulario['letra'], email))
-    conexao.commit
+    cursor.execute('''SELECT esta_concluida FROM tarefas WHERE id=?''', (id,))
+    esta_concluida = cursor.fetchone()
+    esta_concluida = esta_concluida[0]
+    
+    if (esta_concluida):
+        esta_concluida = False
+    else:
+        esta_concluida = True
+    
+    cursor.execute('''UPDATE tarefas SET esta_concluida = ? WHERE id=? ''', (esta_concluida,id))
+    conexao.commit()
+    return True
+    
+def excluir_tarefa(id, email):
+    conexao = conectar_banco()
+    cursor = conexao.cursor()
+    
+    #Verificar se o email que quer excluir a tarefa é realmente dono da tarefa
+    cursor.execute('''SELECT email_usuario FROM tarefas WHERE id=?''', (id,))
+    conexao.commit()
+    email = cursor.fetchone()
+    if(email[0] != email[0]):
+        return False
+    else:
+        cursor.execute('''DELETE FROM tarefas WHERE id=?''', (id,))
+        conexao.commit()
+        return True
+    
+def excluir_usuario(email):
+    conexao = conectar_banco()
+    cursor = conexao.cursor()
+    
+    cursor.execute('''DELETE FROM tarefas WHERE email_usuario=?''',(email,))
+    cursor.execute('''DELETE FROM usuarios WHERE email=?''',(email,))
+    conexao.commit()
+    return True
+    
+    
+
 
     
-    # PARTE PRINCIPAL DO PROGRAMA
+            
+        
+        
+        
+
 if __name__ == '__main__':
-    print("Hello, world!")
+    conectar_banco()
     criar_tabelas()
+    
